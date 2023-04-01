@@ -13,9 +13,7 @@ export default function KeyModal({ close }: { close: () => void }) {
   const [checkStatus, setCheckStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
-  
-const openaiApiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
-  
+
   const form = useForm({
     initialValues: {
       key: apiKey ? apiKey.slice(0, 3) + "..." + apiKey.slice(-4) : "",
@@ -47,14 +45,12 @@ const openaiApiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
         <form
           onSubmit={form.onSubmit(async ({ key }) => {
             setCheckStatus("loading");
-
-            // Use the environment variable instead of the user submitted key
-            const keyValid = await testKey(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
+            const keyValid = await testKey(key);
 
             if (keyValid) {
               notifications.show({ message: "Key saved!", color: "green" });
 
-              setApiKey(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
+              setApiKey(key);
               close();
             } else if (keyValid === false) {
               form.setErrors({ key: "Key authentication failed" });
