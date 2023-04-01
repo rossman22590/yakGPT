@@ -10,7 +10,7 @@ export function assertIsError(e: any): asserts e is Error {
   }
 }
 
-async function fetchFromAPI(endpoint: string, key: string) {
+async function fetchFromAPI(endpoint: string) {
   try {
     const res = await axios.get(endpoint, {
       headers: {
@@ -26,9 +26,9 @@ async function fetchFromAPI(endpoint: string, key: string) {
   }
 }
 
-export async function testKey(key: string): Promise<boolean | undefined> {
+export async function testKey(): Promise<boolean | undefined> {
   try {
-    const res = await fetchFromAPI("https://api.openai.com/v1/models", process.env.NEXT_PUBLIC_OPENAI_API_KEY);
+    const res = await fetchFromAPI("https://api.openai.com/v1/models");
     return res.status === 200;
   } catch (e) {
     if (axios.isAxiosError(e)) {
@@ -39,9 +39,9 @@ export async function testKey(key: string): Promise<boolean | undefined> {
   }
 }
 
-export async function fetchModels(key: string): Promise<string[]> {
+export async function fetchModels(): Promise<string[]> {
   try {
-    const res = await fetchFromAPI("https://api.openai.com/v1/models", process.env.NEXT_PUBLIC_OPENAI_API_KEY);
+    const res = await fetchFromAPI("https://api.openai.com/v1/models");
     console.log(res.data.data);
     return res.data.data.map((model: any) => model.id);
   } catch (e) {
@@ -51,7 +51,6 @@ export async function fetchModels(key: string): Promise<string[]> {
 
 export async function _streamCompletion(
   payload: string,
-  apiKey: string,
   abortController?: AbortController,
   callback?: ((res: IncomingMessage) => void) | undefined,
   errorCallback?: ((res: IncomingMessage, body: string) => void) | undefined
@@ -115,7 +114,6 @@ const paramKeys = [
 export async function streamCompletion(
   messages: Message[],
   params: ChatCompletionParams,
-  apiKey: string,
   abortController?: AbortController,
   callback?: ((res: IncomingMessage) => void) | undefined,
   endCallback?: ((tokensUsed: number) => void) | undefined,
@@ -188,7 +186,6 @@ export async function streamCompletion(
 
   return _streamCompletion(
     payload,
-    apiKey,
     abortController,
     successCallback,
     errorCallback
