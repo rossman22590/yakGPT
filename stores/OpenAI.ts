@@ -14,7 +14,7 @@ async function fetchFromAPI(endpoint: string, key: string) {
   try {
     const res = await axios.get(endpoint, {
       headers: {
-        Authorization: `Bearer ${key}`,
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
       },
     });
     return res;
@@ -28,7 +28,7 @@ async function fetchFromAPI(endpoint: string, key: string) {
 
 export async function testKey(key: string): Promise<boolean | undefined> {
   try {
-    const res = await fetchFromAPI("https://api.openai.com/v1/models", key);
+    const res = await fetchFromAPI("https://api.openai.com/v1/models", process.env.NEXT_PUBLIC_OPENAI_API_KEY);
     return res.status === 200;
   } catch (e) {
     if (axios.isAxiosError(e)) {
@@ -41,7 +41,7 @@ export async function testKey(key: string): Promise<boolean | undefined> {
 
 export async function fetchModels(key: string): Promise<string[]> {
   try {
-    const res = await fetchFromAPI("https://api.openai.com/v1/models", key);
+    const res = await fetchFromAPI("https://api.openai.com/v1/models", process.env.NEXT_PUBLIC_OPENAI_API_KEY);
     console.log(res.data.data);
     return res.data.data.map((model: any) => model.id);
   } catch (e) {
@@ -64,7 +64,7 @@ export async function _streamCompletion(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${NEXT_PUBLIC_OPENAI_API_KEY}`,
       },
       signal: abortController?.signal,
     },
