@@ -10,11 +10,11 @@ export function assertIsError(e: any): asserts e is Error {
   }
 }
 
-async function fetchFromAPI(endpoint: string) {
+async function fetchFromAPI(endpoint: string, key: string) {
   try {
     const res = await axios.get(endpoint, {
       headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+        Authorization: `Bearer ${key}`,
       },
     });
     return res;
@@ -26,9 +26,9 @@ async function fetchFromAPI(endpoint: string) {
   }
 }
 
-export async function testKey(): Promise<boolean | undefined> {
+export async function testKey(key: string): Promise<boolean | undefined> {
   try {
-    const res = await fetchFromAPI("https://api.openai.com/v1/models");
+    const res = await fetchFromAPI("https://api.openai.com/v1/models", key);
     return res.status === 200;
   } catch (e) {
     if (axios.isAxiosError(e)) {
@@ -39,9 +39,9 @@ export async function testKey(): Promise<boolean | undefined> {
   }
 }
 
-export async function fetchModels(): Promise<string[]> {
+export async function fetchModels(key: string): Promise<string[]> {
   try {
-    const res = await fetchFromAPI("https://api.openai.com/v1/models");
+    const res = await fetchFromAPI("https://api.openai.com/v1/models", key);
     console.log(res.data.data);
     return res.data.data.map((model: any) => model.id);
   } catch (e) {
@@ -51,6 +51,7 @@ export async function fetchModels(): Promise<string[]> {
 
 export async function _streamCompletion(
   payload: string,
+  apiKey: string,
   abortController?: AbortController,
   callback?: ((res: IncomingMessage) => void) | undefined,
   errorCallback?: ((res: IncomingMessage, body: string) => void) | undefined
@@ -63,7 +64,7 @@ export async function _streamCompletion(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       signal: abortController?.signal,
     },
@@ -114,6 +115,7 @@ const paramKeys = [
 export async function streamCompletion(
   messages: Message[],
   params: ChatCompletionParams,
+  apiKey: string,
   abortController?: AbortController,
   callback?: ((res: IncomingMessage) => void) | undefined,
   endCallback?: ((tokensUsed: number) => void) | undefined,
@@ -186,6 +188,7 @@ export async function streamCompletion(
 
   return _streamCompletion(
     payload,
+    apiKey,
     abortController,
     successCallback,
     errorCallback
