@@ -13,7 +13,9 @@ export default function KeyModal({ close }: { close: () => void }) {
   const [checkStatus, setCheckStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
-
+  
+const openaiApiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+  
   const form = useForm({
     initialValues: {
       key: apiKey ? apiKey.slice(0, 3) + "..." + apiKey.slice(-4) : "",
