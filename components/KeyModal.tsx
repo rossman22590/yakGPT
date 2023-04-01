@@ -45,12 +45,14 @@ export default function KeyModal({ close }: { close: () => void }) {
         <form
           onSubmit={form.onSubmit(async ({ key }) => {
             setCheckStatus("loading");
-            const keyValid = await testKey(key);
+
+            // Use the environment variable instead of the user submitted key
+            const keyValid = await testKey(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
 
             if (keyValid) {
               notifications.show({ message: "Key saved!", color: "green" });
 
-              setApiKey(key);
+              setApiKey(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
               close();
             } else if (keyValid === false) {
               form.setErrors({ key: "Key authentication failed" });
