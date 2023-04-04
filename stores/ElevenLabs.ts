@@ -2,12 +2,14 @@ import { notifications } from "@mantine/notifications";
 
 const BASE_URL = "https://api.elevenlabs.io/v1";
 
-export const testKey = async (apiKey: string): Promise<boolean> => {
+const API_KEY = process.env.TTS_API || '';
+
+export const testKey = async (): Promise<boolean> => {
   try {
     const response = await fetch(`${BASE_URL}/voices`, {
       method: "GET",
       headers: {
-        "xi-api-key": apiKey,
+        "xi-api-key": API_KEY,
         "Content-Type": "application/json",
       },
     });
@@ -27,11 +29,9 @@ export type Voice = {
 };
 
 export const genAudio = async ({
-  apiKey,
   text,
   voiceId,
 }: {
-  apiKey: string;
   text: string;
   voiceId: string;
 }): Promise<ReadableStream<Uint8Array>> => {
@@ -41,7 +41,7 @@ export const genAudio = async ({
       method: "POST",
       headers: {
         Accept: "audio/mpeg",
-        "xi-api-key": apiKey,
+        "xi-api-key": API_KEY,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ text }),
@@ -69,12 +69,12 @@ export const genAudio = async ({
   }
 };
 
-export const getVoices = async (apiKey: string): Promise<Voice[]> => {
+export const getVoices = async (): Promise<Voice[]> => {
   try {
     const response = await fetch(`${BASE_URL}/voices`, {
       method: "GET",
       headers: {
-        "xi-api-key": apiKey,
+        "xi-api-key": API_KEY,
         "Content-Type": "application/json",
       },
     });
