@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { genAudio } from "@/stores/ElevenLabs";
 import { useChatStore } from "@/stores/ChatStore";
 import { usePlayerStore } from "@/stores/PlayerStore";
@@ -6,55 +6,52 @@ import { usePlayerStore } from "@/stores/PlayerStore";
 const DEFAULT_VOICE = "21m00Tcm4TlvDq8ikWAM";
 
 const AudioStreamPlayer = () => {
-  const audioRef = useRef(new Audio());
+  const audioRef = useRef<HTMLAudioElement>(null);
   const apiKey11Labs = useChatStore((state) => state.apiKey11Labs);
   const ttsText = useChatStore((state) => state.ttsText);
-  const ttsID = useChatStore((state) => state.ttsID);
-  const voiceId =
-    useChatStore((state) => state.settingsForm.voice_id) || DEFAULT_VOICE;
+  const voiceId = useChatStore((state) => state.settingsForm.voice_id) || DEFAULT_VOICE;
 
   const isPlaying = usePlayerStore((state) => state.isPlaying);
   const setIsPlaying = usePlayerStore((state) => state.setIsPlaying);
 
-  const { duration } = audioRef.current;
-
   useEffect(() => {
-    if (isPlaying) {
-      audioRef.current.play();
-    } else {
-      audioRef.current.pause();
+    const audio = audioRef.current;
+    if (audio) {
+      if (isPlaying) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
     }
-  }, [isPlaying, duration]);
+  }, [isPlaying]);
 
   const initialRender = useRef(true);
   useEffect(() => {
+    const audio = audioRef.current;
     // Do not play audio on initial render
     if (initialRender.current) {
       initialRender.current = false;
       return;
     }
-    if (!ttsText) {
+    if (!ttsText || !apiKey11Labs) {
       return;
     }
+
     const fetchAndPlayAudioStream = async () => {
-      if (audioRef.current) {
-        const audioSrc = audioRef.current.src;
-        console.log("called for text", ttsText, "and voiceId", voiceId);
-        let audioStream: ReadableStream<Uint8Array>;
-        try {
-          audioStream = await genAudio({
-            apiKey: apiKey11Labs!,
-            text: ttsText,
-            voiceId,
-          });
-        } catch (error) {
-          console.error(error);
+      try {
+        const audioStream = await genAudio({
+          apiKey: apiKey11Labs,
+          text: ttsText,
+          voiceId,
+        });
+
+        if (!audio) {
           return;
         }
 
         // Create a MediaSource object
         const mediaSource = new MediaSource();
-        audioRef.current.src = URL.createObjectURL(mediaSource);
+        audio.src = URL.createObjectURL(mediaSource);
 
         mediaSource.addEventListener("sourceopen", () => {
           const sourceBuffer = mediaSource.addSourceBuffer("audio/mpeg");
@@ -103,18 +100,19 @@ const AudioStreamPlayer = () => {
           processStream(streamReader);
         });
 
-        audioRef.current.addEventListener("canplay", () => {
+        audio.addEventListener("canplay", () => {
           setIsPlaying(true);
         });
-        audioRef.current.addEventListener("ended", () => {
+        audio.addEventListener("ended", () => {
           setIsPlaying(false);
         });
+      } catch (error) {
+        console.error(error);
       }
     };
 
     fetchAndPlayAudioStream();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiKey11Labs, ttsText, ttsID, setIsPlaying]);
+  }, [apiKey11Labs, ttsText, voiceId, setIsPlaying]);
 
   return <audio ref={audioRef} playsInline />;
 };
