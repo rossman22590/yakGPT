@@ -1,4 +1,4 @@
-# YakGPT 
+# YakGPT  
 
 A simple, locally running ChatGPT UI that makes your text generation faster and chatting even more engaging!
 
