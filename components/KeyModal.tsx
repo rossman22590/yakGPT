@@ -8,12 +8,12 @@ import { update } from "@/stores/ChatActions";
 export function APIPanel({ closeModal }: { closeModal: () => void }) {
   return (
     <div>
-    <p>Welcome to Voice AI</p>
+    <p>Welcome to Therapy AI</p>
     <div style={{textAlign: 'left'}}>
-      <p>Your personal, customizable companion now including voice!.</p>
+      <p>Your personal, customizable companion for mental well-being. Offering on demand emotional support with cognitive techniques and mindfulness. Your privacy is our priority.</p>
     </div>
-      <p>We support voices form Eleven Labs</p>
-      <p>support@mytsi.org/p>
+      <p>TherapyAI@info.com</p>
+      <p>(1+)203-446-6149</p>
 
       <Group position="right" mt="md">
         <Button onClick={closeModal} variant="light">
